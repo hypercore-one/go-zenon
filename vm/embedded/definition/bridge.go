@@ -2,13 +2,14 @@ package definition
 
 import (
 	"encoding/binary"
-	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/zenon-network/go-zenon/common/crypto"
 	"math"
 	"math/big"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/zenon-network/go-zenon/common/crypto"
 
 	eabi "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/zenon-network/go-zenon/common"
@@ -309,8 +310,14 @@ func parseBridgeInfoVariable(data []byte) (*BridgeInfoVariable, error) {
 		}
 		return bridgeInfo, nil
 	} else {
+		var admin types.Address
+		if types.BridgeAdmin != nil {
+			admin = *types.BridgeAdmin
+		} else {
+			admin = constants.InitialBridgeAdministrator
+		}
 		return &BridgeInfoVariable{
-			Administrator:              constants.InitialBridgeAdministrator,
+			Administrator:              admin,
 			CompressedTssECDSAPubKey:   "",
 			DecompressedTssECDSAPubKey: "",
 			AllowKeyGen:                false,

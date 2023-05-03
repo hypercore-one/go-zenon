@@ -1,13 +1,14 @@
 package definition
 
 import (
+	"math/big"
+	"strings"
+
 	"github.com/pkg/errors"
 	"github.com/zenon-network/go-zenon/common"
 	"github.com/zenon-network/go-zenon/common/db"
 	"github.com/zenon-network/go-zenon/common/types"
 	"github.com/zenon-network/go-zenon/vm/constants"
-	"math/big"
-	"strings"
 
 	"github.com/zenon-network/go-zenon/vm/abi"
 )
@@ -161,8 +162,14 @@ func parseLiquidityInfo(data []byte) (*LiquidityInfo, error) {
 		}
 		return liquidityInfo, nil
 	} else {
+		var admin types.Address
+		if types.LiquidityAdmin != nil {
+			admin = *types.LiquidityAdmin
+		} else {
+			admin = constants.InitialBridgeAdministrator
+		}
 		return &LiquidityInfo{
-			Administrator: constants.InitialBridgeAdministrator,
+			Administrator: admin,
 			TokenTuples:   nil,
 			IsHalted:      false,
 			ZnnReward:     common.Big0,

@@ -27,9 +27,10 @@ type chain struct {
 
 	chainManager db.Manager
 	insert       sync.Mutex
+	overrides    map[string]string
 }
 
-func NewChain(chainManager db.Manager, genesis store.Genesis) *chain {
+func NewChain(chainManager db.Manager, genesis store.Genesis, overrides map[string]string) *chain {
 	momentumPool := NewMomentumPool(chainManager, genesis)
 	return &chain{
 		log:                  common.ChainLogger,
@@ -38,6 +39,7 @@ func NewChain(chainManager db.Manager, genesis store.Genesis) *chain {
 		momentumPool:         momentumPool,
 		momentumEventManager: momentumPool.momentumEventManager,
 		chainManager:         chainManager,
+		overrides:            overrides,
 	}
 }
 
@@ -52,6 +54,16 @@ func (c *chain) Init() error {
 		return err
 	}
 	types.SporkAddress = c.genesis.GetSporkAddress()
+
+	if val, ok := c.overrides["BridgeAdmin"]; ok {
+		types.BridgeAdmin = new(types.Address)
+		types.BridgeAdmin.SetBytes(types.ParseAddressPanic(val).Bytes())
+	}
+	if val, ok := c.overrides["LiquidityAdmin"]; ok {
+		types.LiquidityAdmin = new(types.Address)
+		types.LiquidityAdmin.SetBytes(types.ParseAddressPanic(val).Bytes())
+	}
+
 	c.Register(c.accountPool)
 
 	frontierStore := c.GetFrontierMomentumStore()
@@ -61,6 +73,23 @@ func (c *chain) Init() error {
 	}
 	fmt.Printf("Initialized NoM. Height: %v, Hash: %v\n", frontier.Height, frontier.Hash)
 	c.log.Info("initialized nom", "identifier", frontier.Identifier())
+
+	// can either create a new ImplementedSpork with hex or replace the hash
+	if val, ok := c.overrides["AcceleratorSpork"]; ok {
+		delete(types.ImplementedSporksMap, types.AcceleratorSpork.SporkId)
+		types.AcceleratorSpork = types.NewImplementedSpork(val)
+		types.ImplementedSporksMap[types.AcceleratorSpork.SporkId] = true
+	}
+	if val, ok := c.overrides["HtlcSpork"]; ok {
+		delete(types.ImplementedSporksMap, types.HtlcSpork.SporkId)
+		types.HtlcSpork = types.NewImplementedSpork(val)
+		types.ImplementedSporksMap[types.HtlcSpork.SporkId] = true
+	}
+	if val, ok := c.overrides["BridgeAndLiquiditySpork"]; ok {
+		delete(types.ImplementedSporksMap, types.BridgeAndLiquiditySpork.SporkId)
+		types.BridgeAndLiquiditySpork = types.NewImplementedSpork(val)
+		types.ImplementedSporksMap[types.BridgeAndLiquiditySpork.SporkId] = true
+	}
 
 	if _, unimplemented, err := GotAllActiveSporksImplemented(frontierStore); err != nil {
 		return err

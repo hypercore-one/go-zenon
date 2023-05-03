@@ -61,6 +61,8 @@ type Config struct {
 	Producer *ProducerConfig
 	RPC      RPCConfig
 	Net      NetConfig
+
+	Overrides map[string]string
 }
 
 func (c *Config) MakePathsAbsolute() error {
@@ -108,6 +110,7 @@ func (c *Config) makeZenonConfig(walletManager *wallet.Manager) (*zenon.Config, 
 		MinConnectedPeers: c.Net.MinConnectedPeers,
 		ProducingKeyPair:  pillarCoinbase,
 		GenesisConfig:     c.makeGenesisConfig(),
+		OverridesConfig:   c.Overrides,
 		DataDir:           c.DataPath,
 	}, nil
 }

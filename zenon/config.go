@@ -16,6 +16,7 @@ type Config struct {
 	DataDir           string
 	ProducingKeyPair  *wallet.KeyPair
 	GenesisConfig     store.Genesis
+	OverridesConfig   map[string]string
 }
 
 func (c *Config) NewDBManager(inside string) db.Manager {

@@ -365,8 +365,9 @@ func newMockZenon(t common.T, customEpochDuration time.Duration) MockZenon {
 	common.ConsensusLogger.SetHandler(log15.LvlFilterHandler(log15.LvlError, log15.StderrHandler))
 	common.SupervisorLogger.SetHandler(log15.LvlFilterHandler(log15.LvlError, log15.StderrHandler))
 	consensus.EpochDuration = customEpochDuration
+	overrides := make(map[string]string)
 
-	ch := chain.NewChain(db.NewLevelDBManager(t.TempDir()), genesis.NewGenesis(g.EmbeddedGenesis))
+	ch := chain.NewChain(db.NewLevelDBManager(t.TempDir()), genesis.NewGenesis(g.EmbeddedGenesis), overrides)
 	cs := consensus.NewConsensus(db.NewMemDB(), ch, true)
 	supervisor := vm.NewSupervisor(ch, cs)
 	zenon := &mockZenon{
