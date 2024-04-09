@@ -39,7 +39,7 @@ func checkMetaDataStatic(param *definition.AcceleratorParam) error {
 		return constants.ErrInvalidDescription
 	}
 
-	if ok, _ := regexp.MatchString("^([Hh][Tt][Tt][Pp][Ss]?://)?[a-zA-Z0-9]{2,60}\\.[a-zA-Z]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=]{0,100})$", param.Url); ok == false || len(param.Url) == 0 {
+	if ok, _ := regexp.MatchString("^([Hh][Tt][Tt][Pp][Ss]?://)?[a-zA-Z0-9]{2,60}\\.[a-zA-Z]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=]{0,100})$", param.Url); !ok || len(param.Url) == 0 {
 		return constants.ErrForbiddenParam
 	}
 
@@ -328,7 +328,7 @@ func (p *UpdateEmbeddedAcceleratorMethod) ReceiveBlock(context vm_context.Accoun
 	}
 	qsrBalance := new(big.Int).Set(balanceQsr)
 
-	sort.Slice(projectList, func(i, j int) bool {
+	sort.SliceStable(projectList, func(i, j int) bool {
 		var phaseITimestamp, phaseJTimestamp int64
 		phaseI, err := projectList[i].GetCurrentPhase(context.Storage())
 		if err != nil {

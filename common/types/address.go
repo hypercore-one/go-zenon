@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/btcsuite/btcutil/bech32"
+	"github.com/btcsuite/btcd/btcutil/bech32"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -99,7 +99,7 @@ func parseEmbedded(addrStr string) Address {
 	if err != nil {
 		panic(fmt.Sprintf("Address %v err %v", addrStr, err))
 	}
-	if IsEmbeddedAddress(a) == false {
+	if !IsEmbeddedAddress(a) {
 		panic(fmt.Sprintf("Address %v is not a contract address", addrStr))
 	}
 	return a
